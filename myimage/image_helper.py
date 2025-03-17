@@ -98,8 +98,28 @@ class ImageHelper():
         return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     
     @staticmethod
-    def upscale_image(image):
-        return cv2.resize(image, None, fx=4, fy=4, interpolation=cv2.INTER_CUBIC)
+    def upscale_image(image, size:float):
+        return cv2.resize(image, None, fx=size, fy=size, interpolation=cv2.INTER_CUBIC)
+    
+    @staticmethod
+    def upscale_image_1_8(image):
+        return ImageHelper.upscale_image(image, 1.8)
+    
+    @staticmethod
+    def upscale_image_2_5(image):
+        return ImageHelper.upscale_image(image, 2.5)
+    
+    @staticmethod
+    def upscale_image_3(image):
+        return ImageHelper.upscale_image(image, 3)
+    
+    @staticmethod
+    def upscale_image_4(image):
+        return ImageHelper.upscale_image(image, 4)
+    
+    @staticmethod
+    def upscale_image_1_8(image):
+        return ImageHelper.upscale_image(image, 1.8)
     
     @staticmethod
     def normalize_image(image):
@@ -164,6 +184,25 @@ class ImageHelper():
         rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
 
         return rotated, angle
+    
+    @staticmethod
+    def convert_black_to_white_bg(image):
+        # Convert to grayscale to create a mask
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Create mask where black pixels are background
+        _, mask = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
+
+        # Create white background
+        white_bg = np.full(image.shape, 255, dtype=np.uint8)
+
+        # Combine foreground and white background
+        final = cv2.bitwise_and(image, image, mask=mask)
+        bg_mask = cv2.bitwise_not(mask)
+        white_part = cv2.bitwise_and(white_bg, white_bg, mask=bg_mask)
+
+        result = cv2.add(final, white_part)
+        return result
         
 
     # -- Deprecate
